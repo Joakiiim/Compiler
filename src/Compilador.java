@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
@@ -99,6 +100,10 @@ public class Compilador extends javax.swing.JFrame {
         jtaOutputConsole = new javax.swing.JTextArea();
         jScrollPane3 = new javax.swing.JScrollPane();
         tblTokens = new javax.swing.JTable();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        tblDirecciones = new javax.swing.JTable();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        tblSimbolos = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.LINE_AXIS));
@@ -220,6 +225,44 @@ public class Compilador extends javax.swing.JFrame {
         tblTokens.getTableHeader().setReorderingAllowed(false);
         jScrollPane3.setViewportView(tblTokens);
 
+        tblDirecciones.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "ID", "Token", "No. Línea", "VCI"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblDirecciones.getTableHeader().setReorderingAllowed(false);
+        jScrollPane4.setViewportView(tblDirecciones);
+
+        tblSimbolos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "ID", "Token", "Dir", "VCI", "Ambito"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblSimbolos.getTableHeader().setReorderingAllowed(false);
+        jScrollPane5.setViewportView(tblSimbolos);
+
         javax.swing.GroupLayout rootPanelLayout = new javax.swing.GroupLayout(rootPanel);
         rootPanel.setLayout(rootPanelLayout);
         rootPanelLayout.setHorizontalGroup(
@@ -231,11 +274,14 @@ public class Compilador extends javax.swing.JFrame {
                         .addComponent(buttonsFilePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(panelButtonCompilerExecute, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 693, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 693, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 693, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 693, Short.MAX_VALUE)
+                    .addComponent(jScrollPane5))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
-                .addGap(17, 17, 17))
+                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addContainerGap())
         );
         rootPanelLayout.setVerticalGroup(
             rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -245,13 +291,17 @@ public class Compilador extends javax.swing.JFrame {
                     .addComponent(buttonsFilePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(panelButtonCompilerExecute, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(rootPanelLayout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap(19, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
         getContentPane().add(rootPanel);
@@ -313,6 +363,8 @@ public class Compilador extends javax.swing.JFrame {
         clearFields();
         lexicalAnalysis();
         fillTableTokens();
+//        Map<String, Object[]> map = new HashMap<>();
+//       jTableToMap.crearMapa(tblTokens, map);
         syntacticAnalysis();
         semanticAnalysis();
         printConsole();
@@ -358,9 +410,11 @@ public class Compilador extends javax.swing.JFrame {
       
         
         gramatica.show();
+        
     }
 
     private void semanticAnalysis() {
+        
     }
 
     private void colorAnalysis() {
@@ -506,6 +560,7 @@ public class Compilador extends javax.swing.JFrame {
             }
             new Compilador().setVisible(true);
         });
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -519,10 +574,14 @@ public class Compilador extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTextArea jtaOutputConsole;
     private javax.swing.JTextPane jtpCode;
     private javax.swing.JPanel panelButtonCompilerExecute;
     private javax.swing.JPanel rootPanel;
+    private javax.swing.JTable tblDirecciones;
+    private javax.swing.JTable tblSimbolos;
     private javax.swing.JTable tblTokens;
     // End of variables declaration//GEN-END:variables
 }
