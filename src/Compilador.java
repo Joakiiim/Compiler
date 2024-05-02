@@ -338,6 +338,9 @@ public class Compilador extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarCActionPerformed
 
     private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompilarActionPerformed
+        limpiarTablas(tblTokens);
+        limpiarTablas(tblSimbolos);
+        limpiarTablas(tblDirecciones);
         if (getTitle().contains("*") || getTitle().equals(title)) {
             if (directorio.Save()) {
                 compile();
@@ -484,7 +487,29 @@ public class Compilador extends javax.swing.JFrame {
         for (String lexema : symbolTable.keySet()) {
             System.out.println("Lexema: " + lexema + ", Identificador: " + symbolTable.get(lexema));
         }
+        // Llenar la tabla con los datos del HashMap
+        DefaultTableModel tabladeSimbolos = (DefaultTableModel) tblSimbolos.getModel();
+        for (Symbol symbol : symbolTable.values()) {
+            tabladeSimbolos.addRow(new Object[]{
+                symbol.getID(),
+                symbol.getToken(),
+                symbol.getValorInt(),
+                symbol.getD1(),
+                symbol.getD2(),
+                symbol.getPtr(),
+                symbol.getAmbito()
+            });
+        }
 
+    }
+
+    private void limpiarTablas(JTable table) {
+        // Suponiendo que tienes una JTable llamada "table"
+        DefaultTableModel model = (DefaultTableModel) table.getModel(); // Obtener el modelo de la JTable
+
+        while (model.getRowCount() > 0) { // Mientras haya filas en la tabla
+            model.removeRow(0); // Eliminar la primera fila (índice 0)
+        }
     }
 
     private void colorAnalysis() {
