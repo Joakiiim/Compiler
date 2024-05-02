@@ -234,7 +234,7 @@
                   <Table columnCount="4" rowCount="0">
                     <Column editable="false" title="Componente l&#xe9;xico" type="java.lang.Object"/>
                     <Column editable="false" title="Lexema" type="java.lang.Object"/>
-                    <Column editable="true" title="Identificador" type="java.lang.Object"/>
+                    <Column editable="false" title="Identificador" type="java.lang.Object"/>
                     <Column editable="false" title="[No.L&#xed;nea, Columna]" type="java.lang.Object"/>
                   </Table>
                 </Property>

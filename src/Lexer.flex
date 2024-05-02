@@ -53,6 +53,8 @@ println {return token(yytext(), "-5", yyline, yycolumn);}
 int {return token(yytext(),"-64",yyline,yycolumn);}
 String {return token(yytext(),"-66",yyline,yycolumn);}
 double {return token(yytext(),"-65",yyline,yycolumn);}
+public {return token(yytext(),"-67",yyline,yycolumn);}
+class {return token(yytext(),"-68",yyline,yycolumn);}
 
 
 //----------------------------------------------OPERADORES ARITMETICOS

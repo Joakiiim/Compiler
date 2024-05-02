@@ -219,7 +219,7 @@ public class Compilador extends javax.swing.JFrame {
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, true, false
+                false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -419,6 +419,7 @@ public class Compilador extends javax.swing.JFrame {
     private void semanticAnalysis() {
         obtenerNombreClase(tblTokens);
         obtenerValoresInt(tblTokens);
+        asignarValoresInt(tblTokens);
     }
 
     private void obtenerNombreClase(JTable tabla) {
@@ -501,6 +502,49 @@ public class Compilador extends javax.swing.JFrame {
             });
         }
 
+    }
+
+    private void asignarValoresInt(JTable table) {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+
+        // Columna identificador para sacar el -2
+        int lexemaColumnIndex = 2;
+
+        // Columna identificador para sacar el lexema
+        int lexemaReal = 1;
+
+        // Recorrer las filas de la tabla
+        for (int row = 0; row < model.getRowCount(); row++) {
+            String lexema = (String) model.getValueAt(row, lexemaColumnIndex);
+            String igual = (String) model.getValueAt(row++, lexemaReal);
+            String valor = (String) model.getValueAt(row + 2, lexemaReal);
+            
+            System.out.println("El identificador es: "+lexema);
+
+            if ("-2".equals(lexema)) {
+                String identificador = (String) model.getValueAt(row, lexemaReal);
+                // Verificar si el identificador ya existe en el HashMap
+                if (symbolTable.containsKey(identificador)) {
+                    if ("=".equals(igual)) {
+                        symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row + 1, 0).toString(), "0", "0", "null", lexemaClase, "int", valor));
+                    }
+                } else {
+                    System.err.println("Error: No se pueden asignar valores a variables no declaradas.");
+                    jtaOutputConsole.setText("Error: No se pueden asignar valores a variables no declaradas.");
+                    return; // Salir del método si se encuentra un duplicado
+                }
+            }
+            // Si el lexema es ";", termina el proceso
+            if (";".equals(lexema)) {
+                break;
+            }
+        }
+
+        // Imprimir el HashMap tabla simbolos
+        System.out.println("Lexemas e Identificadores tabla simbolos:");
+        for (String lexema : symbolTable.keySet()) {
+            System.out.println("Lexema: " + lexema + ", Identificador: " + symbolTable.get(lexema));
+        }
     }
 
     private void limpiarTablas(JTable table) {
