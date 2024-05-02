@@ -1,4 +1,2 @@
-print("Hola");
 int x, y;
-x = 12.5;
-y = 30;
+x=20;

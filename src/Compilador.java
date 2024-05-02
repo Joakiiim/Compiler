@@ -329,6 +329,7 @@ public class Compilador extends javax.swing.JFrame {
         if (directorio.Save()) {
             clearFields();
         }
+        limpiarTablas(tblSimbolos);
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnGuardarCActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarCActionPerformed
@@ -513,26 +514,45 @@ public class Compilador extends javax.swing.JFrame {
         // Columna identificador para sacar el lexema
         int lexemaReal = 1;
 
-        // Recorrer las filas de la tabla
-        for (int row = 0; row < model.getRowCount(); row++) {
-            String lexema = (String) model.getValueAt(row, lexemaColumnIndex);
-            String igual = (String) model.getValueAt(row++, lexemaReal);
-            String valor = (String) model.getValueAt(row + 2, lexemaReal);
-            
-            System.out.println("El identificador es: "+lexema);
+// Recorrer las filas de la tabla
+        for (int row = 0; row < model.getRowCount() - 2; row++) { // Resta 2 para evitar el índice fuera de límites
+            // Asegurarse de que row - 1 no sea negativo
+            String verificaNoClase = row > 0 ? (String) model.getValueAt(row - 1, lexemaReal) : null;
 
-            if ("-2".equals(lexema)) {
+            Integer lexema = (Integer) model.getValueAt(row, lexemaColumnIndex);
+            String variable = (String) model.getValueAt(row, lexemaReal);
+            String igual = (String) model.getValueAt(row + 1, lexemaReal);
+            String valor = (String) model.getValueAt(row + 2, lexemaReal);
+
+            System.out.println("La variable es: " + variable);
+            System.out.println("El identificador es: " + lexema);
+            System.out.println("El igual es: " + igual);
+            System.out.println("El valor es: " + valor);
+
+            // Asegúrate de que los índices están dentro de los límites
+            if ("-2".equals(lexema.toString()) && row + 2 < model.getRowCount()) {
                 String identificador = (String) model.getValueAt(row, lexemaReal);
                 // Verificar si el identificador ya existe en el HashMap
                 if (symbolTable.containsKey(identificador)) {
                     if ("=".equals(igual)) {
-                        symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row + 1, 0).toString(), "0", "0", "null", lexemaClase, "int", valor));
+                        try {
+                            symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row, 0).toString(), "0", "0", "null", lexemaClase, "int", Integer.parseInt(valor)));
+                        } catch (NumberFormatException e) {
+                            System.err.println("Error: Valor no válido para la variable " + identificador);
+                            jtaOutputConsole.setText("Error: Valor no válido para la variable " + identificador);
+                            return; // Salir del método si ocurre un error en la conversión
+                        }
                     }
-                } else {
-                    System.err.println("Error: No se pueden asignar valores a variables no declaradas.");
-                    jtaOutputConsole.setText("Error: No se pueden asignar valores a variables no declaradas.");
-                    return; // Salir del método si se encuentra un duplicado
+                } else if (!(symbolTable.containsKey(identificador))) {
+                    if (verificaNoClase != null && verificaNoClase.contains("class")) {
+                        row++;
+                    } else {
+                        System.err.println("Error: No se pueden asignar valores a variables no declaradas.");
+                        jtaOutputConsole.setText("Error: No se pueden asignar valores a variables no declaradas.");
+                        return; // Salir del método si se encuentra un duplicado
+                    }
                 }
+
             }
             // Si el lexema es ";", termina el proceso
             if (";".equals(lexema)) {
@@ -544,6 +564,21 @@ public class Compilador extends javax.swing.JFrame {
         System.out.println("Lexemas e Identificadores tabla simbolos:");
         for (String lexema : symbolTable.keySet()) {
             System.out.println("Lexema: " + lexema + ", Identificador: " + symbolTable.get(lexema));
+        }
+
+        // Llenar la tabla con los datos del HashMap
+        limpiarTablas(tblSimbolos);
+        DefaultTableModel tabladeSimbolos = (DefaultTableModel) tblSimbolos.getModel();
+        for (Symbol symbol : symbolTable.values()) {
+            tabladeSimbolos.addRow(new Object[]{
+                symbol.getID(),
+                symbol.getToken(),
+                symbol.getValorInt(),
+                symbol.getD1(),
+                symbol.getD2(),
+                symbol.getPtr(),
+                symbol.getAmbito()
+            });
         }
     }
 
