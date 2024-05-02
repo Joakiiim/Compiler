@@ -42,7 +42,7 @@ public class Compilador extends javax.swing.JFrame {
 
     // Crear un HashMap para almacenar los símbolos y sus valores
     HashMap<String, Symbol> symbolTable = new HashMap<>();
-    static String lexemaClase;
+    static String lexemaClase = "global";
 
     // Crear un HashMap para almacenar los ints
     HashMap<String, String> lexemaIdentificadorMap = new HashMap<>();
@@ -253,11 +253,11 @@ public class Compilador extends javax.swing.JFrame {
 
             },
             new String [] {
-                "ID", "Token", "Dir", "VCI", "Ambito"
+                "ID", "Token", "Valor", "D1", "D2", "Ptr", "ambito"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -455,12 +455,14 @@ public class Compilador extends javax.swing.JFrame {
             if ("int".equals(lexema)) {
                 String identificador = (String) model.getValueAt(row + 1, lexemaColumnIndex);
                 lexemaIdentificadorMap.put(identificador, identificador);
+                symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row + 1, 0).toString(), "0", "0", "null", lexemaClase, "int", 0));
             }
 
             // Si el lexema es ",", avanza al siguiente row
             if (",".equals(lexema)) {
                 String identificador = (String) model.getValueAt(row + 1, lexemaColumnIndex);
                 lexemaIdentificadorMap.put(identificador, identificador);
+                symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row + 1, 0).toString(), "0", "0", "null", lexemaClase, "int", 0));
             }
 
             // Si el lexema es ";", termina el proceso
@@ -468,11 +470,10 @@ public class Compilador extends javax.swing.JFrame {
                 break;
             }
         }
-
-        // Imprimir el HashMap para verificar los resultados
-        System.out.println("Lexemas e Identificadores:");
-        for (String lexema : lexemaIdentificadorMap.keySet()) {
-            System.out.println("Lexema: " + lexema + ", Identificador: " + lexemaIdentificadorMap.get(lexema));
+        // Imprimir el HashMap tabla simbolos
+        System.out.println("Lexemas e Identificadores tabla simbolos:");
+        for (String lexema : symbolTable.keySet()) {
+            System.out.println("Lexema: " + lexema + ", Identificador: " + symbolTable.get(lexema));
         }
     }
 
