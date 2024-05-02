@@ -371,7 +371,7 @@ public class Compilador extends javax.swing.JFrame {
 //       jTableToMap.crearMapa(tblTokens, map);
         syntacticAnalysis();
         semanticAnalysis();
-        printConsole();
+//        printConsole();
         codeHasBeenCompiled = true;
     }
 
@@ -447,22 +447,26 @@ public class Compilador extends javax.swing.JFrame {
         // Supongamos que tus columnas son Token, Lexema e Identificador
         int lexemaColumnIndex = 1;
 
+        // Crear un HashMap para almacenar los lexemas y sus identificadores
+        HashMap<String, String> lexemaIdentificadorMap = new HashMap<>();
+
         // Recorrer las filas de la tabla
         for (int row = 0; row < model.getRowCount(); row++) {
             String lexema = (String) model.getValueAt(row, lexemaColumnIndex);
 
-            // Si el lexema es "int", guarda el identificador en el HashMap
-            if ("int".equals(lexema)) {
+            // Si el lexema es "int" o ",", guarda el identificador en el HashMap
+            if ("int".equals(lexema) || ",".equals(lexema)) {
                 String identificador = (String) model.getValueAt(row + 1, lexemaColumnIndex);
+                // Verificar si el identificador ya existe en el HashMap
+                if (lexemaIdentificadorMap.containsKey(identificador)) {
+                    System.err.println("Error: No se pueden duplicar valores.");
+                    jtaOutputConsole.setText("Error: No se pueden duplicar valores.");
+                    return; // Salir del método si se encuentra un duplicado
+                }
+                // Agregar el identificador al HashMap
                 lexemaIdentificadorMap.put(identificador, identificador);
                 symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row + 1, 0).toString(), "0", "0", "null", lexemaClase, "int", 0));
-            }
-
-            // Si el lexema es ",", avanza al siguiente row
-            if (",".equals(lexema)) {
-                String identificador = (String) model.getValueAt(row + 1, lexemaColumnIndex);
-                lexemaIdentificadorMap.put(identificador, identificador);
-                symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row + 1, 0).toString(), "0", "0", "null", lexemaClase, "int", 0));
+                // También puedes realizar otras operaciones aquí si es necesario
             }
 
             // Si el lexema es ";", termina el proceso
@@ -470,11 +474,17 @@ public class Compilador extends javax.swing.JFrame {
                 break;
             }
         }
+        // Imprimir el HashMap para verificar los resultados
+        System.out.println("Lexemas e Identificadores:");
+        for (String lexema : lexemaIdentificadorMap.keySet()) {
+            System.out.println("Lexema: " + lexema + ", Identificador: " + lexemaIdentificadorMap.get(lexema));
+        }
         // Imprimir el HashMap tabla simbolos
         System.out.println("Lexemas e Identificadores tabla simbolos:");
         for (String lexema : symbolTable.keySet()) {
             System.out.println("Lexema: " + lexema + ", Identificador: " + symbolTable.get(lexema));
         }
+
     }
 
     private void colorAnalysis() {
