@@ -23,14 +23,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.Timer;
+import javax.swing.table.DefaultTableModel;
 
-/**
- *
- * @author yisus
- */
 public class Compilador extends javax.swing.JFrame {
 
     private String title;
@@ -42,6 +39,13 @@ public class Compilador extends javax.swing.JFrame {
     private ArrayList<Production> identProd;
     private HashMap<String, String> identificadores;
     private boolean codeHasBeenCompiled = false;
+
+    // Crear un HashMap para almacenar los símbolos y sus valores
+    HashMap<String, Symbol> symbolTable = new HashMap<>();
+    static String lexemaClase;
+
+    // Crear un HashMap para almacenar los ints
+    HashMap<String, String> lexemaIdentificadorMap = new HashMap<>();
 
     /**
      * Creates new form Compilador
@@ -397,24 +401,79 @@ public class Compilador extends javax.swing.JFrame {
 
     private void syntacticAnalysis() {
         Grammar gramatica = new Grammar(tokens, errors);
-        
-        
+
         /* Mostrar gramáticas */
-        //Sirve para eliminar los errores 
-        gramatica.delete(new String[]{"ERROR","ERROR2"},1);
-        
-        
+        //Sirve para eliminar los errores
+        gramatica.delete(new String[]{"ERROR", "ERROR2"}, 1);
+
         /*Agrupacion de valores numericos*/
-        gramatica.group("NUM_VAL","-61|-62|-63",true);
-        
-      
-        
+        gramatica.group("NUM_VAL", "-61|-62|-63", true);
+
         gramatica.show();
-        
+
     }
 
     private void semanticAnalysis() {
-        
+        obtenerNombreClase(tblTokens);
+        obtenerValoresInt(tblTokens);
+    }
+
+    private void obtenerNombreClase(JTable tabla) {
+        // Iterar sobre las filas de la JTable
+        for (int i = 0; i < tabla.getRowCount(); i++) {
+            String lexema = (String) tabla.getValueAt(i, 1); // Obtener el lexema de la fila actual
+            if (lexema.equals("public")) {
+                // Verificar si el siguiente row existe
+                if (i + 1 < tabla.getRowCount()) {
+                    // Obtener el lexema del siguiente row
+                    lexemaClase = (String) tabla.getValueAt(i + 1, 1);
+                    // Verificar si el lexema del siguiente row es "class"
+                    if (lexemaClase.equals("class")) {
+                        // Guardar el valor del lexema del siguiente row en la variable global
+                        lexemaClase = (String) tabla.getValueAt(i + 2, 1);
+                        // Realizar cualquier acción necesaria con el lexema guardado
+                        System.out.println("El lexema siguiente es: " + lexemaClase);
+                        // Puedes salir del bucle si solo necesitas encontrar la primera coincidencia
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private void obtenerValoresInt(JTable table) {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+
+        // Supongamos que tus columnas son Token, Lexema e Identificador
+        int lexemaColumnIndex = 1;
+
+        // Recorrer las filas de la tabla
+        for (int row = 0; row < model.getRowCount(); row++) {
+            String lexema = (String) model.getValueAt(row, lexemaColumnIndex);
+
+            // Si el lexema es "int", guarda el identificador en el HashMap
+            if ("int".equals(lexema)) {
+                String identificador = (String) model.getValueAt(row + 1, lexemaColumnIndex);
+                lexemaIdentificadorMap.put(identificador, identificador);
+            }
+
+            // Si el lexema es ",", avanza al siguiente row
+            if (",".equals(lexema)) {
+                String identificador = (String) model.getValueAt(row + 1, lexemaColumnIndex);
+                lexemaIdentificadorMap.put(identificador, identificador);
+            }
+
+            // Si el lexema es ";", termina el proceso
+            if (";".equals(lexema)) {
+                break;
+            }
+        }
+
+        // Imprimir el HashMap para verificar los resultados
+        System.out.println("Lexemas e Identificadores:");
+        for (String lexema : lexemaIdentificadorMap.keySet()) {
+            System.out.println("Lexema: " + lexema + ", Identificador: " + lexemaIdentificadorMap.get(lexema));
+        }
     }
 
     private void colorAnalysis() {
@@ -454,49 +513,43 @@ public class Compilador extends javax.swing.JFrame {
     Functions.addRowDataInTable(tblTokens, data);
     });
     }*/
-    
     private void fillTableTokens() {
-    //ArrayList<Token> identifiers = new ArrayList<>(); // Lista para almacenar identificadores
-    
-    tokens.forEach(token -> {
-    boolean isIdentifier = isIdentifier(token);
-    int identifierValue = isIdentifier ? -2 : -1;
-    if (isIdentifier) {
-        Object[] data = new Object[]{token.getLexicalComp(), token.getLexeme(), identifierValue, "[" + token.getLine() + ", " + token.getColumn() + "]"};
-    Functions.addRowDataInTable(tblTokens, data);
-    } else {
-    Object[] data = new Object[]{token.getLexicalComp(), token.getLexeme(), identifierValue, "[" + token.getLine() + ", " + token.getColumn() + "]"};
-    Functions.addRowDataInTable(tblTokens, data);
-    }
-    });
-    
-    } 
-   
+        //ArrayList<Token> identifiers = new ArrayList<>(); // Lista para almacenar identificadores
 
+        tokens.forEach(token -> {
+            boolean isIdentifier = isIdentifier(token);
+            int identifierValue = isIdentifier ? -2 : -1;
+            if (isIdentifier) {
+                Object[] data = new Object[]{token.getLexicalComp(), token.getLexeme(), identifierValue, "[" + token.getLine() + ", " + token.getColumn() + "]"};
+                Functions.addRowDataInTable(tblTokens, data);
+            } else {
+                Object[] data = new Object[]{token.getLexicalComp(), token.getLexeme(), identifierValue, "[" + token.getLine() + ", " + token.getColumn() + "]"};
+                Functions.addRowDataInTable(tblTokens, data);
+            }
+        });
+
+    }
 
     private boolean isIdentifier(Token token) {
-    String lexema = token.getLexeme();
-    
-    // Lista de palabras reservadas
-    String[] palabrasReservadas = {"int","String","public","double","while","if" /* Agrega más palabras reservadas aquí */};
-    
-    // Verificar si el lexema comienza con una letra o un guión bajo, seguido de letras, dígitos o guiones bajos
-    if (lexema.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
-        // Verificar si el lexema no es una palabra reservada
-        for (String palabraReservada : palabrasReservadas) {
-            if (lexema.equals(palabraReservada)) {
-                return false; // No es un identificador, es una palabra reservada
-            }
-        }
-        return true; // Es un identificador válido
-    } else {
-        return false; // No cumple con el formato de identificador
-    }
-}
+        String lexema = token.getLexeme();
 
-  
-   
-    
+        // Lista de palabras reservadas
+        String[] palabrasReservadas = {"int", "String", "public", "double", "while", "if", "print", "class" /* Agrega más palabras reservadas aquí */};
+
+        // Verificar si el lexema comienza con una letra o un guión bajo, seguido de letras, dígitos o guiones bajos
+        if (lexema.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
+            // Verificar si el lexema no es una palabra reservada
+            for (String palabraReservada : palabrasReservadas) {
+                if (lexema.equals(palabraReservada)) {
+                    return false; // No es un identificador, es una palabra reservada
+                }
+            }
+            return true; // Es un identificador válido
+        } else {
+            return false; // No cumple con el formato de identificador
+        }
+    }
+
     private void printConsole() {
         int sizeErrors = errors.size();
         if (sizeErrors > 0) {
@@ -530,7 +583,7 @@ public class Compilador extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -560,7 +613,7 @@ public class Compilador extends javax.swing.JFrame {
             }
             new Compilador().setVisible(true);
         });
-        
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
