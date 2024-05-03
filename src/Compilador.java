@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Stack;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.Timer;
@@ -339,6 +341,8 @@ public class Compilador extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarCActionPerformed
 
     private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompilarActionPerformed
+        lexemaIdentificadorMap.clear();
+        symbolTable.clear();
         limpiarTablas(tblTokens);
         limpiarTablas(tblSimbolos);
         limpiarTablas(tblDirecciones);
@@ -419,8 +423,8 @@ public class Compilador extends javax.swing.JFrame {
 
     private void semanticAnalysis() {
         obtenerNombreClase(tblTokens);
-        obtenerValoresInt(tblTokens);
-        asignarValoresInt(tblTokens);
+        obtenerValores(tblTokens);
+//        asignarValoresInt(tblTokens);
     }
 
     private void obtenerNombreClase(JTable tabla) {
@@ -446,63 +450,161 @@ public class Compilador extends javax.swing.JFrame {
         }
     }
 
-    private void obtenerValoresInt(JTable table) {
+    private void obtenerValores(JTable table) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
 
         // Supongamos que tus columnas son Token, Lexema e Identificador
         int lexemaColumnIndex = 1;
 
-        // Crear un HashMap para almacenar los lexemas y sus identificadores
-        HashMap<String, String> lexemaIdentificadorMap = new HashMap<>();
+        // Crear un HashSet para almacenar los identificadores y verificar duplicados
+        HashSet<String> identificadores = new HashSet<>();
 
         // Recorrer las filas de la tabla
         for (int row = 0; row < model.getRowCount(); row++) {
             String lexema = (String) model.getValueAt(row, lexemaColumnIndex);
 
-            // Si el lexema es "int" o ",", guarda el identificador en el HashMap
-            if ("int".equals(lexema) || ",".equals(lexema)) {
-                String identificador = (String) model.getValueAt(row + 1, lexemaColumnIndex);
-                // Verificar si el identificador ya existe en el HashMap
-                if (lexemaIdentificadorMap.containsKey(identificador)) {
-                    System.err.println("Error: No se pueden duplicar valores.");
-                    jtaOutputConsole.setText("Error: No se pueden duplicar valores.");
-                    return; // Salir del método si se encuentra un duplicado
-                }
-                // Agregar el identificador al HashMap
-                lexemaIdentificadorMap.put(identificador, identificador);
-                symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row + 1, 0).toString(), "0", "0", "null", lexemaClase, "int", 0));
-                // También puedes realizar otras operaciones aquí si es necesario
-            }
+            // Si el lexema es "int", procesar el identificador siguiente
+            if ("int".equals(lexema)) {
+                Stack<String> identificadoresStack = new Stack<>();
+                Stack<String> valoresStack = new Stack<>();
 
-            // Si el lexema es ";", termina el proceso
-            if (";".equals(lexema)) {
-                break;
+                int rowIndex = row + 1;
+                boolean foundSemicolon = false; // Variable para controlar si se encuentra ';'
+                while (rowIndex < model.getRowCount()) {
+                    String identificador = (String) model.getValueAt(rowIndex, lexemaColumnIndex);
+                    if (identificador.equals(";")) {
+                        foundSemicolon = true;
+                        break; // Salir del bucle al encontrar ";"
+                    }
+                    if (identificadores.contains(identificador)) {
+                        System.err.println("Error: No se pueden duplicar valores.");
+                        jtaOutputConsole.setText("Error: No se pueden duplicar valores.");
+                        return; // Salir del método si se encuentra un duplicado
+                    }
+                    if (identificador.contains(",")) {
+                        rowIndex++;
+                        continue; // Si el identificador contiene ",", pasar a la siguiente fila
+                    }
+                    identificadores.add(identificador);
+                    identificadoresStack.push(identificador);
+
+                    String valor = model.getValueAt(rowIndex, 0).toString();
+                    valoresStack.push(valor);
+
+                    System.out.println("Identificador en pila: " + identificador);
+                    System.out.println("Valor en pila: " + valor);
+
+                    if (!valor.equals("-76") && !valor.equals("-82")) {
+                        System.err.println("Error: Falta un ';' para declarar variables.");
+                        jtaOutputConsole.setText("Error: Falta un ';' para declarar variables.");
+                        return; // Salir del método si falta ';'
+                    }
+
+                    rowIndex++; // Pasar a la siguiente fila
+                }
+
+                if (!foundSemicolon) {
+                    System.err.println("Error: Falta un ';' para declarar variables.");
+                    jtaOutputConsole.setText("Error: Falta un ';' para declarar variables.");
+                    return; // Salir del método si no se encuentra ';'
+                }
+
+                // Procesar los identificadores y valores almacenados en las pilas
+                while (!identificadoresStack.isEmpty() && !valoresStack.isEmpty()) {
+                    String identificador = identificadoresStack.pop();
+                    String valor = valoresStack.pop();
+                    symbolTable.put(identificador, new Symbol(identificador, valor, "0", "0", "null", lexemaClase, "int", 0));
+                }
+
+                row = rowIndex - 1; // Actualizar el índice de fila procesada
+            } // Si el lexema es "double", procesar el identificador siguiente
+            else if ("double".equals(lexema)) {
+                Stack<String> identificadoresStack = new Stack<>();
+                Stack<String> valoresStack = new Stack<>();
+
+                int rowIndex = row + 1;
+                boolean foundSemicolon = false; // Variable para controlar si se encuentra ';'
+                while (rowIndex < model.getRowCount()) {
+                    String identificador = (String) model.getValueAt(rowIndex, lexemaColumnIndex);
+                    if (identificador.equals(";")) {
+                        foundSemicolon = true;
+                        break; // Salir del bucle al encontrar ";"
+                    }
+                    if (identificadores.contains(identificador)) {
+                        System.err.println("Error: No se pueden duplicar valores.");
+                        jtaOutputConsole.setText("Error: No se pueden duplicar valores.");
+                        return; // Salir del método si se encuentra un duplicado
+                    }
+                    if (identificador.contains(",")) {
+                        rowIndex++;
+                        continue; // Si el identificador contiene ",", pasar a la siguiente fila
+                    }
+                    identificadores.add(identificador);
+                    identificadoresStack.push(identificador);
+
+                    String valor = model.getValueAt(rowIndex, 0).toString();
+                    valoresStack.push(valor);
+
+                    System.out.println("Identificador en pila: " + identificador);
+                    System.out.println("Valor en pila: " + valor);
+
+                    if (!valor.equals("-76") && !valor.equals("-82")) {
+                        System.err.println("Error: Falta un ';' para declarar variables.");
+                        jtaOutputConsole.setText("Error: Falta un ';' para declarar variables.");
+                        return; // Salir del método si falta ';'
+                    }
+
+                    rowIndex++; // Pasar a la siguiente fila
+                }
+
+                if (!foundSemicolon) {
+                    System.err.println("Error: Falta un ';' para declarar variables.");
+                    jtaOutputConsole.setText("Error: Falta un ';' para declarar variables.");
+                    return; // Salir del método si no se encuentra ';'
+                }
+
+                // Procesar los identificadores y valores almacenados en las pilas
+                while (!identificadoresStack.isEmpty() && !valoresStack.isEmpty()) {
+                    String identificador = identificadoresStack.pop();
+                    String valor = valoresStack.pop();
+                    symbolTable.put(identificador, new Symbol(identificador, valor, "0.0", "0", "0", "null", lexemaClase, 0.0, "double"));
+                }
+
+                row = rowIndex - 1; // Actualizar el índice de fila procesada
             }
         }
-        // Imprimir el HashMap para verificar los resultados
-        System.out.println("Lexemas e Identificadores:");
-        for (String lexema : lexemaIdentificadorMap.keySet()) {
-            System.out.println("Lexema: " + lexema + ", Identificador: " + lexemaIdentificadorMap.get(lexema));
-        }
-        // Imprimir el HashMap tabla simbolos
+
+        // Imprimir la tabla de símbolos
         System.out.println("Lexemas e Identificadores tabla simbolos:");
-        for (String lexema : symbolTable.keySet()) {
-            System.out.println("Lexema: " + lexema + ", Identificador: " + symbolTable.get(lexema));
+        for (Symbol symbol : symbolTable.values()) {
+            System.out.println(symbol);
         }
+
         // Llenar la tabla con los datos del HashMap
         DefaultTableModel tabladeSimbolos = (DefaultTableModel) tblSimbolos.getModel();
         for (Symbol symbol : symbolTable.values()) {
-            tabladeSimbolos.addRow(new Object[]{
-                symbol.getID(),
-                symbol.getToken(),
-                symbol.getValorInt(),
-                symbol.getD1(),
-                symbol.getD2(),
-                symbol.getPtr(),
-                symbol.getAmbito()
-            });
+            if ("int".equals(symbol.getTipoDato())) {
+                tabladeSimbolos.addRow(new Object[]{
+                    symbol.getID(),
+                    symbol.getToken(),
+                    symbol.getValorInt(),
+                    symbol.getD1(),
+                    symbol.getD2(),
+                    symbol.getPtr(),
+                    symbol.getAmbito()
+                });
+            } else if ("double".equals(symbol.getTipoDato())) {
+                tabladeSimbolos.addRow(new Object[]{
+                    symbol.getID(),
+                    symbol.getToken(),
+                    symbol.getValorDouble(),
+                    symbol.getD1(),
+                    symbol.getD2(),
+                    symbol.getPtr(),
+                    symbol.getAmbito()
+                });
+            }
         }
-
     }
 
     private void asignarValoresInt(JTable table) {

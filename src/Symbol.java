@@ -18,6 +18,8 @@ public class Symbol {
     private String ambito;
     private String tipoDato;
     private int valorInt;
+    private double valorDouble;
+    private String valorString;
 
     public Symbol(String ID, String token, String valor, String D1, String D2, String ptr, String ambito, String tipoDato) {
         this.ID = ID;
@@ -39,6 +41,30 @@ public class Symbol {
         this.ambito = ambito;
         this.tipoDato = tipoDato;
         this.valorInt = valorInt;
+    }
+
+    public Symbol(String ID, String token, String valor, String D1, String D2, String ptr, String ambito,double valorDouble, String tipoDato) {
+        this.ID = ID;
+        this.token = token;
+        this.valor = valor;
+        this.D1 = D1;
+        this.D2 = D2;
+        this.ptr = ptr;
+        this.ambito = ambito;
+        this.tipoDato = tipoDato;
+        this.valorDouble = valorDouble;
+    }
+
+    public Symbol(String ID, String token, String valor, String D1, String D2, String ptr, String ambito, String tipoDato, String valorString) {
+        this.ID = ID;
+        this.token = token;
+        this.valor = valor;
+        this.D1 = D1;
+        this.D2 = D2;
+        this.ptr = ptr;
+        this.ambito = ambito;
+        this.tipoDato = tipoDato;
+        this.valorString = valorString;
     }
 
     public int getValorInt() {
@@ -113,11 +139,26 @@ public class Symbol {
         this.tipoDato = tipoDato;
     }
 
-    @Override
-    public String toString() {
-        return "Symbol{" + "ID=" + ID + ", token=" + token + ", valor=" + valor + ", D1=" + D1 + ", D2=" + D2 + ", ptr=" + ptr + ", ambito=" + ambito + ", tipoDato=" + tipoDato + ", valorInt=" + valorInt + '}';
+    public double getValorDouble() {
+        return valorDouble;
     }
 
+    public void setValorDouble(double valorDouble) {
+        this.valorDouble = valorDouble;
+    }
+
+    public String getValorString() {
+        return valorString;
+    }
+
+    public void setValorString(String valorString) {
+        this.valorString = valorString;
+    }
+
+    @Override
+    public String toString() {
+        return "Symbol{" + "ID=" + ID + ", token=" + token + ", valor=" + valor + ", D1=" + D1 + ", D2=" + D2 + ", ptr=" + ptr + ", ambito=" + ambito + ", tipoDato=" + tipoDato + ", valorInt=" + valorInt + ", valorDouble=" + valorDouble + ", valorString=" + valorString + '}';
+    }
     
 
 }

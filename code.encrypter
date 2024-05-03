@@ -1,2 +1,4 @@
-int x, y;
-x=20;
+public class puerta{
+int x,y,z,s;
+double p,a,i;
+}
