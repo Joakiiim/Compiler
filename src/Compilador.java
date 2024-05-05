@@ -425,7 +425,7 @@ public class Compilador extends javax.swing.JFrame {
     private void semanticAnalysis() {
         obtenerNombreClase(tblTokens);
         obtenerValores(tblTokens);
-//        asignarValoresInt(tblTokens);
+        asignarValores(tblTokens);
     }
 
     private void obtenerNombreClase(JTable tabla) {
@@ -650,16 +650,15 @@ public class Compilador extends javax.swing.JFrame {
         }
     }
 
-    private void asignarValoresInt(JTable table) {
+    private void asignarValores(JTable table) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
-
         // Columna identificador para sacar el -2
         int lexemaColumnIndex = 2;
 
         // Columna identificador para sacar el lexema
         int lexemaReal = 1;
 
-// Recorrer las filas de la tabla
+        // Recorrer las filas de la tabla
         for (int row = 0; row < model.getRowCount() - 2; row++) { // Resta 2 para evitar el índice fuera de límites
             // Asegurarse de que row - 1 no sea negativo
             String verificaNoClase = row > 0 ? (String) model.getValueAt(row - 1, lexemaReal) : null;
@@ -680,12 +679,49 @@ public class Compilador extends javax.swing.JFrame {
                 // Verificar si el identificador ya existe en el HashMap
                 if (symbolTable.containsKey(identificador)) {
                     if ("=".equals(igual)) {
-                        try {
-                            symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row, 0).toString(), "0", "0", "null", lexemaClase, "int", Integer.parseInt(valor)));
-                        } catch (NumberFormatException e) {
-                            System.err.println("Error: Valor no válido para la variable " + identificador);
-                            jtaOutputConsole.setText("Error: Valor no válido para la variable " + identificador);
-                            return; // Salir del método si ocurre un error en la conversión
+                        if (symbolTable.get(identificador).getTipoDato().equals("int")) {
+                            try {
+                                String pc = (String) model.getValueAt(row + 3, lexemaReal);
+                                if (pc.equals(";")) {
+                                    try {
+                                        symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row, 0).toString(), "0", "0", "null", lexemaClase, "int", Integer.parseInt(valor)));
+                                    } catch (NumberFormatException e) {
+                                        System.err.println("Error: Valor no válido para la variable " + identificador);
+                                        jtaOutputConsole.setText("Error: Valor no válido para la variable " + identificador);
+                                        return; // Salir del método si ocurre un error en la conversión
+                                    }
+                                } else {
+                                    System.err.println("Error: Falta un ';' para declarar variables.");
+                                    jtaOutputConsole.setText("Error: Falta un ';' para declarar variables.");
+                                    return; // Salir del método si falta ';'
+                                }
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                System.err.println("Error: Falta un ';' para declarar variables.");
+                                jtaOutputConsole.setText("Error: Falta un ';' para declarar variables.");
+                                return; // Salir del método si falta ';'
+                            }
+
+                        } else if (symbolTable.get(identificador).getTipoDato().equals("double")) {
+                            try {
+                                String pc = (String) model.getValueAt(row + 3, lexemaReal);
+                                if (pc.equals(";")) {
+                                    try {
+                                        symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row, 0).toString(), "0.0", "0", "0", "null", lexemaClase, Double.parseDouble(valor), "double"));
+                                    } catch (NumberFormatException e) {
+                                        System.err.println("Error: Valor no válido para la variable " + identificador);
+                                        jtaOutputConsole.setText("Error: Valor no válido para la variable " + identificador);
+                                        return; // Salir del método si ocurre un error en la conversión
+                                    }
+                                } else {
+                                    System.err.println("Error: Falta un ';' para declarar variables.");
+                                    jtaOutputConsole.setText("Error: Falta un ';' para declarar variables.");
+                                    return; // Salir del método si falta ';'
+                                }
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                System.err.println("Error: Falta un ';' para declarar variables.");
+                                jtaOutputConsole.setText("Error: Falta un ';' para declarar variables.");
+                                return; // Salir del método si falta ';'
+                            }
                         }
                     }
                 } else if (!(symbolTable.containsKey(identificador))) {
@@ -699,62 +735,44 @@ public class Compilador extends javax.swing.JFrame {
                 }
 
             }
-            // Si el lexema es ";", termina el proceso
-            if (";".equals(lexema)) {
-                break;
+//            // Si el lexema es ";", termina el proceso
+//            if (";".equals(lexema)) {
+//                break;
+//            }
+        }
+
+        // Imprimir el HashMap tabla simbolos
+        System.out.println("Lexemas e Identificadores tabla simbolos:");
+        for (String lexema : symbolTable.keySet()) {
+            System.out.println("Lexema: " + lexema + ", Identificador: " + symbolTable.get(lexema));
+        }
+
+        // Llenar la tabla con los datos del HashMap
+        limpiarTablas(tblSimbolos);
+        // Llenar la tabla con los datos del HashMap
+        DefaultTableModel tabladeSimbolos = (DefaultTableModel) tblSimbolos.getModel();
+        for (Symbol symbol : symbolTable.values()) {
+            if ("int".equals(symbol.getTipoDato())) {
+                tabladeSimbolos.addRow(new Object[]{
+                    symbol.getID(),
+                    symbol.getToken(),
+                    symbol.getValorInt(),
+                    symbol.getD1(),
+                    symbol.getD2(),
+                    symbol.getPtr(),
+                    symbol.getAmbito()
+                });
+            } else if ("double".equals(symbol.getTipoDato())) {
+                tabladeSimbolos.addRow(new Object[]{
+                    symbol.getID(),
+                    symbol.getToken(),
+                    symbol.getValorDouble(),
+                    symbol.getD1(),
+                    symbol.getD2(),
+                    symbol.getPtr(),
+                    symbol.getAmbito()
+                });
             }
-        }
-
-        // Imprimir el HashMap tabla simbolos
-        System.out.println("Lexemas e Identificadores tabla simbolos:");
-        for (String lexema : symbolTable.keySet()) {
-            System.out.println("Lexema: " + lexema + ", Identificador: " + symbolTable.get(lexema));
-        }
-
-        // Llenar la tabla con los datos del HashMap
-        limpiarTablas(tblSimbolos);
-        DefaultTableModel tabladeSimbolos = (DefaultTableModel) tblSimbolos.getModel();
-        for (Symbol symbol : symbolTable.values()) {
-            tabladeSimbolos.addRow(new Object[]{
-                symbol.getID(),
-                symbol.getToken(),
-                symbol.getValorInt(),
-                symbol.getD1(),
-                symbol.getD2(),
-                symbol.getPtr(),
-                symbol.getAmbito()
-            });
-        }
-    }
-
-    private void asignarValoresDirectosInt(JTable table, int row) {
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
-        String identificador = (String) model.getValueAt(row + 1, 1);
-        String igual = (String) model.getValueAt(row + 2, 1);
-        String valor = (String) model.getValueAt(row + 3, 1);
-        String puncom = (String) model.getValueAt(row + 4, 1);
-
-        symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row, 0).toString(), "0", "0", "null", lexemaClase, "int", Integer.parseInt(valor)));
-
-        // Imprimir el HashMap tabla simbolos
-        System.out.println("Lexemas e Identificadores tabla simbolos:");
-        for (String lexema : symbolTable.keySet()) {
-            System.out.println("Lexema: " + lexema + ", Identificador: " + symbolTable.get(lexema));
-        }
-
-        // Llenar la tabla con los datos del HashMap
-        limpiarTablas(tblSimbolos);
-        DefaultTableModel tabladeSimbolos = (DefaultTableModel) tblSimbolos.getModel();
-        for (Symbol symbol : symbolTable.values()) {
-            tabladeSimbolos.addRow(new Object[]{
-                symbol.getID(),
-                symbol.getToken(),
-                symbol.getValorInt(),
-                symbol.getD1(),
-                symbol.getD2(),
-                symbol.getPtr(),
-                symbol.getAmbito()
-            });
         }
     }
 

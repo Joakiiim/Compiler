@@ -1,5 +1,8 @@
 public class puerta{
 int x, y,z,s;
 double p,a,i;
-double x = 20.5;
+int w = 15;
+double o = 20.5;
+a=12.2;
+s=100;
 }
