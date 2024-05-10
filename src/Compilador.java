@@ -427,16 +427,14 @@ public class Compilador extends javax.swing.JFrame {
     }
 
     private void semanticAnalysis() {
-        //obtenerNombreClase(tblTokens);
-
-        obtenerValores(tblTokens);
+        obtenerNombreClase(tblTokens);
         ambitoActual(tblTokens);
+        obtenerValores(tblTokens);
         asignarValores(tblTokens);
-        fillTableDirecciones();
 
     }
-    
-        private void fillTableDirecciones() {
+
+    private void fillTableDirecciones() {
         Set<String> lexemesSet = new HashSet<>(); // Conjunto para almacenar lexemas ya vistos
 
         tokens.forEach(token -> {
@@ -737,7 +735,7 @@ public class Compilador extends javax.swing.JFrame {
             String variable = (String) model.getValueAt(row, lexemaReal);
             String igual = (String) model.getValueAt(row + 1, lexemaReal);
             String valor = (String) model.getValueAt(row + 2, lexemaReal);
-            
+
             String lexema2 = (String) model.getValueAt(row, 1);
 
             if (lexema2.equals("{")) {
@@ -755,7 +753,7 @@ public class Compilador extends javax.swing.JFrame {
             if ("-2".equals(lexema.toString()) && row + 2 < model.getRowCount()) {
                 String identificador = (String) model.getValueAt(row, lexemaReal);
                 // Verificar si el identificador ya existe en el HashMap
-                if (symbolTable.containsKey(identificador)) {
+                if ((symbolTable.containsKey(identificador) && symbolTable.get(identificador).getAmbito().equals(ambitoStack.peek())) || (symbolTable.containsKey(identificador) && symbolTable.get(identificador).getAmbito().equals(lexemaClase))) {
                     if ("=".equals(igual)) {
                         if (symbolTable.get(identificador).getTipoDato().equals("int")) {
                             try {
@@ -814,6 +812,10 @@ public class Compilador extends javax.swing.JFrame {
                         jtaOutputConsole.setText("Error: No se pueden asignar valores a variables no declaradas.");
                         return; // Salir del método si se encuentra un duplicado
                     }
+                } else {
+                    System.err.println("Error: No se pueden asignar valores a variables no declaradas.");
+                    jtaOutputConsole.setText("Error: No se pueden asignar valores a variables no declaradas.");
+                    return; // Salir del método si se encuentra un duplicado
                 }
 
             }
@@ -856,6 +858,7 @@ public class Compilador extends javax.swing.JFrame {
                 });
             }
         }
+        fillTableDirecciones();
     }
 
     private void limpiarTablas(JTable table) {
