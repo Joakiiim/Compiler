@@ -88,11 +88,7 @@ void {return token(yytext(),"-69",yyline,yycolumn);}
 //----------------------------------------------CONTANTE STRING
 {Cadena} {return token(yytext(), "-63", yyline, yycolumn);}
 
-
-------------------------------------------------TIPO DE DATO
-
-
-
+{Identificador}[a-zA-Z0-9]* {return token(yytext(), "-82", yyline, yycolumn);}
 
 //----------------------------------------------CARACTERES ESPECIALES
 "[" {return token(yytext(), "-71", yyline, yycolumn);}
@@ -109,13 +105,9 @@ void {return token(yytext(),"-69",yyline,yycolumn);}
 {Identificador}\$ {return token(yytext(), "-79", yyline, yycolumn);}
 {Identificador}\% {return token(yytext(), "-80", yyline, yycolumn);}
 {Identificador}\& {return token(yytext(), "-81", yyline, yycolumn);}
-{Identificador}[a-zA-Z0-9]* {return token(yytext(), "-82", yyline, yycolumn);}
 
 
 
-
-/* Regla para la declaración de variables */
-DeclaracionVariable = TIPO_DATO Identificador '=' VALOR ';'
 
     
 //Errores   GENERALES

@@ -1,8 +1,7 @@
 public class prueba(){
-double J;
-J=20;
+
 public void UNO(){
-int H;
-H=21;
+int x,y,z;
+x=100;
 }
 }
