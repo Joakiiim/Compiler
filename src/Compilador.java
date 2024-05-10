@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -42,6 +43,7 @@ public class Compilador extends javax.swing.JFrame {
     private ArrayList<Production> identProd;
     private HashMap<String, String> identificadores;
     private boolean codeHasBeenCompiled = false;
+    public String ambitotd = "";
 
     // Crear un HashMap para almacenar los símbolos y sus valores
     HashMap<String, Symbol> symbolTable = new HashMap<>();
@@ -430,7 +432,26 @@ public class Compilador extends javax.swing.JFrame {
         obtenerValores(tblTokens);
         ambitoActual(tblTokens);
         asignarValores(tblTokens);
+        fillTableDirecciones();
 
+    }
+    
+        private void fillTableDirecciones() {
+        Set<String> lexemesSet = new HashSet<>(); // Conjunto para almacenar lexemas ya vistos
+
+        tokens.forEach(token -> {
+            boolean isIdentifier = isIdentifier(token);
+            int identifierValue = isIdentifier ? -2 : -1;
+            if (identifierValue == -2 && token.getLexicalComp().toString() == "-82" && !symbolTable.containsKey(token.getLexeme())) {
+                String lexeme = token.getLexeme();
+                if (!lexemesSet.contains(lexeme)) { // Verificar si el lexema ya está en el conjunto
+                    lexemesSet.add(lexeme); // Agregar el lexema al conjunto
+                    Object[] data = new Object[]{lexeme, token.getLexicalComp(), token.getLine(), "0"};
+                    Functions.addRowDataInTable(tblDirecciones, data);
+                    ambitotd = lexeme;
+                }
+            }
+        });
     }
 
     private void obtenerNombreClase(JTable tabla) {
