@@ -55,6 +55,7 @@ String {return token(yytext(),"-66",yyline,yycolumn);}
 double {return token(yytext(),"-65",yyline,yycolumn);}
 public {return token(yytext(),"-67",yyline,yycolumn);}
 class {return token(yytext(),"-68",yyline,yycolumn);}
+void {return token(yytext(),"-69",yyline,yycolumn);}
 
 
 //----------------------------------------------OPERADORES ARITMETICOS

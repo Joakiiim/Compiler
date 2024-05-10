@@ -1,8 +1,8 @@
-public class puerta{
-int x, y,z,s;
-double p,a,i;
-int w = 15;
-double o = 20.5;
-a=12.2;
-s=100;
+public class prueba(){
+double J;
+J=20;
+public void UNO(){
+int H;
+H=21;
+}
 }

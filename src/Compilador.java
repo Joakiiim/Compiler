@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Stack;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -48,6 +49,7 @@ public class Compilador extends javax.swing.JFrame {
 
     // Crear un HashMap para almacenar los ints
     HashMap<String, String> lexemaIdentificadorMap = new HashMap<>();
+    Map<Integer, String> ambitos = new HashMap<>();
 
     /**
      * Creates new form Compilador
@@ -423,9 +425,12 @@ public class Compilador extends javax.swing.JFrame {
     }
 
     private void semanticAnalysis() {
-        obtenerNombreClase(tblTokens);
+        //obtenerNombreClase(tblTokens);
+
         obtenerValores(tblTokens);
+        ambitoActual(tblTokens);
         asignarValores(tblTokens);
+
     }
 
     private void obtenerNombreClase(JTable tabla) {
@@ -451,6 +456,32 @@ public class Compilador extends javax.swing.JFrame {
         }
     }
 
+    private Map<Integer, String> ambitoActual(JTable tabla) {
+        DefaultTableModel model = (DefaultTableModel) tabla.getModel();
+        int lexemaColumnIndex = 1;
+
+        Stack<String> ambitoStack = new Stack<>();
+        ambitoStack.push("global");
+
+        for (int row = 0; row < model.getRowCount(); row++) {
+            String lexema = (String) model.getValueAt(row, lexemaColumnIndex);
+
+            if (lexema.equals("{")) {
+                String ambitoActual = ambitoStack.peek();
+                ambitos.put(row, ambitoActual);
+            } else if (lexema.equals("}")) {
+                ambitoStack.pop();
+            } else if (lexema.equals("class")) {
+                String nombreClase = (String) model.getValueAt(row + 1, lexemaColumnIndex);
+                ambitoStack.push(nombreClase);
+            } else if (("public".equals(lexema) || "private".equals(lexema)) && "void".equals(model.getValueAt(row + 1, lexemaColumnIndex))) {
+                String nombreMetodo = (String) model.getValueAt(row + 2, lexemaColumnIndex);
+                ambitoStack.push(nombreMetodo);
+            }
+        }
+        return ambitos;
+    }
+
     private void obtenerValores(JTable table) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
 
@@ -459,9 +490,20 @@ public class Compilador extends javax.swing.JFrame {
 
         // Crear un HashSet para almacenar los identificadores y verificar duplicados
         HashSet<String> identificadores = new HashSet<>();
+        //agregado
+        //Map<Integer, String> ambitos = ambitoActual(table);
+        Stack<String> ambitoStack = new Stack<>();
+
         // Recorrer las filas de la tabla
         for (int row = 0; row < model.getRowCount(); row++) {
             String lexema = (String) model.getValueAt(row, lexemaColumnIndex);
+
+            //agrego
+            if (lexema.equals("{")) {
+                ambitoStack.push(ambitos.get(row));
+            } else if (lexema.equals("}")) {
+                ambitoStack.pop();
+            }
 
             // Si el lexema es "int", procesar el identificador siguiente
             if ("int".equals(lexema)) {
@@ -484,7 +526,9 @@ public class Compilador extends javax.swing.JFrame {
                         return; // Salir del método si falta ';'  
                     }
                     identificadores.add(identificador);
-                    symbolTable.put(identificador, new Symbol(identificador, valor, "0", "0", "null", lexemaClase, "int", Integer.parseInt(valorAsignar)));
+                    //agregue
+                    String ambito = ambitoStack.peek();
+                    symbolTable.put(identificador, new Symbol(identificador, valor, "0", "0", "null", ambito, "int", Integer.parseInt(valorAsignar)));
                 } else {
                     Stack<String> identificadoresStack = new Stack<>();
                     Stack<String> valoresStack = new Stack<>();
@@ -534,7 +578,9 @@ public class Compilador extends javax.swing.JFrame {
                     while (!identificadoresStack.isEmpty() && !valoresStack.isEmpty()) {
                         String identificador = identificadoresStack.pop();
                         String valor = valoresStack.pop();
-                        symbolTable.put(identificador, new Symbol(identificador, valor, "0", "0", "null", lexemaClase, "int", 0));
+                        //agregue
+                        String ambito = ambitoStack.peek();
+                        symbolTable.put(identificador, new Symbol(identificador, valor, "0", "0", "null", ambito, "int", 0));
                     }
 
                     row = rowIndex - 1; // Actualizar el índice de fila procesada
@@ -559,7 +605,9 @@ public class Compilador extends javax.swing.JFrame {
                         return; // Salir del método si falta ';'  
                     }
                     identificadores.add(identificador);
-                    symbolTable.put(identificador, new Symbol(identificador, valor, "0.0", "0", "0", "null", lexemaClase, Double.parseDouble(valorAsignar), "double"));
+                    //agregue
+                    String ambito = ambitoStack.peek();
+                    symbolTable.put(identificador, new Symbol(identificador, valor, "0.0", "0", "0", "null", ambito, Double.parseDouble(valorAsignar), "double"));
                 } else {
                     Stack<String> identificadoresStack = new Stack<>();
                     Stack<String> valoresStack = new Stack<>();
@@ -609,7 +657,9 @@ public class Compilador extends javax.swing.JFrame {
                     while (!identificadoresStack.isEmpty() && !valoresStack.isEmpty()) {
                         String identificador = identificadoresStack.pop();
                         String valor = valoresStack.pop();
-                        symbolTable.put(identificador, new Symbol(identificador, valor, "0.0", "0", "0", "null", lexemaClase, 0.0, "double"));
+                        //agegue
+                        String ambito = ambitoStack.peek();
+                        symbolTable.put(identificador, new Symbol(identificador, valor, "0.0", "0", "0", "null", ambito, 0.0, "double"));
                     }
 
                     row = rowIndex - 1; // Actualizar el índice de fila procesada
@@ -657,16 +707,23 @@ public class Compilador extends javax.swing.JFrame {
 
         // Columna identificador para sacar el lexema
         int lexemaReal = 1;
-
+        Stack<String> ambitoStack = new Stack<>();
         // Recorrer las filas de la tabla
         for (int row = 0; row < model.getRowCount() - 2; row++) { // Resta 2 para evitar el índice fuera de límites
             // Asegurarse de que row - 1 no sea negativo
             String verificaNoClase = row > 0 ? (String) model.getValueAt(row - 1, lexemaReal) : null;
-
             Integer lexema = (Integer) model.getValueAt(row, lexemaColumnIndex);
             String variable = (String) model.getValueAt(row, lexemaReal);
             String igual = (String) model.getValueAt(row + 1, lexemaReal);
             String valor = (String) model.getValueAt(row + 2, lexemaReal);
+            
+            String lexema2 = (String) model.getValueAt(row, 1);
+
+            if (lexema2.equals("{")) {
+                ambitoStack.push(ambitos.get(row));
+            } else if (lexema2.equals("}")) {
+                ambitoStack.pop();
+            }
 
             System.out.println("La variable es: " + variable);
             System.out.println("El identificador es: " + lexema);
@@ -684,7 +741,8 @@ public class Compilador extends javax.swing.JFrame {
                                 String pc = (String) model.getValueAt(row + 3, lexemaReal);
                                 if (pc.equals(";")) {
                                     try {
-                                        symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row, 0).toString(), "0", "0", "null", lexemaClase, "int", Integer.parseInt(valor)));
+                                        String ambito = ambitoStack.peek();
+                                        symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row, 0).toString(), "0", "0", "null", ambito, "int", Integer.parseInt(valor)));
                                     } catch (NumberFormatException e) {
                                         System.err.println("Error: Valor no válido para la variable " + identificador);
                                         jtaOutputConsole.setText("Error: Valor no válido para la variable " + identificador);
@@ -706,7 +764,8 @@ public class Compilador extends javax.swing.JFrame {
                                 String pc = (String) model.getValueAt(row + 3, lexemaReal);
                                 if (pc.equals(";")) {
                                     try {
-                                        symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row, 0).toString(), "0.0", "0", "0", "null", lexemaClase, Double.parseDouble(valor), "double"));
+                                        String ambito = ambitoStack.peek();
+                                        symbolTable.put(identificador, new Symbol(identificador, model.getValueAt(row, 0).toString(), "0.0", "0", "0", "null", ambito, Double.parseDouble(valor), "double"));
                                     } catch (NumberFormatException e) {
                                         System.err.println("Error: Valor no válido para la variable " + identificador);
                                         jtaOutputConsole.setText("Error: Valor no válido para la variable " + identificador);
@@ -726,6 +785,8 @@ public class Compilador extends javax.swing.JFrame {
                     }
                 } else if (!(symbolTable.containsKey(identificador))) {
                     if (verificaNoClase != null && verificaNoClase.contains("class")) {
+                        row++;
+                    } else if (verificaNoClase != null && verificaNoClase.contains("void")) {
                         row++;
                     } else {
                         System.err.println("Error: No se pueden asignar valores a variables no declaradas.");
@@ -843,7 +904,7 @@ public class Compilador extends javax.swing.JFrame {
         String lexema = token.getLexeme();
 
         // Lista de palabras reservadas
-        String[] palabrasReservadas = {"int", "String", "public", "double", "while", "if", "print", "class" /* Agrega más palabras reservadas aquí */};
+        String[] palabrasReservadas = {"int", "String", "public", "double", "while", "if", "print", "class", "void" /* Agrega más palabras reservadas aquí */};
 
         // Verificar si el lexema comienza con una letra o un guión bajo, seguido de letras, dígitos o guiones bajos
         if (lexema.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
