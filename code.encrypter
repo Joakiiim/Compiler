@@ -1,7 +1,7 @@
-public class prueba(){
-
-public void UNO(){
-int x,y,z;
-x=100;
+public class Prueba(){
+if(x%2==12*2)
+{
+x = 2212*100- 23;
+print("par");
 }
 }

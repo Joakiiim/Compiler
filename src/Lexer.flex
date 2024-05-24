@@ -103,7 +103,7 @@ void {return token(yytext(),"-69",yyline,yycolumn);}
 
 //IDENTIFICADORES
 {Identificador}\$ {return token(yytext(), "-79", yyline, yycolumn);}
-{Identificador}\% {return token(yytext(), "-80", yyline, yycolumn);}
+
 {Identificador}\& {return token(yytext(), "-81", yyline, yycolumn);}
 
 
