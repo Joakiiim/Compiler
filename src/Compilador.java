@@ -24,7 +24,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import javax.swing.JOptionPane;
@@ -89,6 +91,21 @@ public class Compilador extends javax.swing.JFrame {
         Functions.setAutocompleterJTextComponent(new String[]{}, jtpCode, () -> {
             timerKeyReleased.restart();
         });
+        prioridades.put("*", 60);
+        prioridades.put("/", 60);
+        prioridades.put("%", 60);
+        prioridades.put("+", 50);
+        prioridades.put("-", 50);
+        prioridades.put("<", 40);
+        prioridades.put(">", 40);
+        prioridades.put("<=", 40);
+        prioridades.put(">=", 40);
+        prioridades.put("==", 40);
+        prioridades.put("!=", 40);
+        prioridades.put("!", 30);
+        prioridades.put("&&", 20);
+        prioridades.put("||", 10);
+        prioridades.put("=", 0);
     }
 
     @SuppressWarnings("unchecked")
@@ -374,6 +391,7 @@ public class Compilador extends javax.swing.JFrame {
 
             }
         }
+
     }//GEN-LAST:event_btnEjecutarActionPerformed
 
     private void compile() {
@@ -386,6 +404,7 @@ public class Compilador extends javax.swing.JFrame {
         semanticAnalysis();
 //        printConsole();
         codeHasBeenCompiled = true;
+        VCI();
     }
 
     private void lexicalAnalysis() {
@@ -928,7 +947,7 @@ public class Compilador extends javax.swing.JFrame {
         String lexema = token.getLexeme();
 
         // Lista de palabras reservadas
-        String[] palabrasReservadas = {"int", "String", "public", "double", "while", "if", "print", "class", "void" /* Agrega más palabras reservadas aquí */};
+        String[] palabrasReservadas = {"int", "String", "public", "double", "while", "if", "print", "class", "void", "else" /* Agrega más palabras reservadas aquí */};
 
         // Verificar si el lexema comienza con una letra o un guión bajo, seguido de letras, dígitos o guiones bajos
         if (lexema.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
@@ -969,6 +988,108 @@ public class Compilador extends javax.swing.JFrame {
         identificadores.clear();
         codeHasBeenCompiled = false;
     }
+    private static final Map<String, Integer> prioridades = new HashMap<>();
+
+    private void VCI() {
+        Stack<String> estatutos = new Stack<>();
+        Stack<String> operadores = new Stack<>();
+        Stack<String> operadoresOrdenCorrecto = new Stack<>();
+        Stack<Integer> direcciones = new Stack<>();
+        LinkedList<String> ordenPostFijo = new LinkedList<>();
+
+        int rowCount = tblTokens.getRowCount();
+        for (int i = 0; i < rowCount; i++) {
+            int indiceLista = 0;
+            Object lex = tblTokens.getValueAt(i, 1);
+            Object tkn = tblTokens.getValueAt(i, 0);
+            System.out.println("Valor en la fila " + i + ", columna 2: " + lex);
+
+            if (lex.equals("class")) {
+                estatutos.push((String) tblTokens.getValueAt(i + 1, 1));
+            } else if (lex.equals("{")) {
+                direcciones.push(indiceLista);
+            } //            else if(lex.equals("int")||lex.equals("double")){
+            //                
+            //            }
+            else if (lex.equals("if")) {
+                estatutos.push(lex.toString());
+                if (tblTokens.getValueAt(i + 1, 1).equals("(")) {
+                    for (int j = i + 2; j < rowCount; j++) {
+                        if (tblTokens.getValueAt(j, 0).equals("-82") || tblTokens.getValueAt(j, 0).equals("-61") || tblTokens.getValueAt(j, 0).equals("-62")) {
+                            ordenPostFijo.add(tblTokens.getValueAt(j, 1).toString());
+                            indiceLista++;
+                        } else if (tblTokens.getValueAt(j, 0).equals("-21")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-22")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-23")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-24")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-25")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-26")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-31")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-32")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-33")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-34")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-35")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-36")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-41")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-42")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 0).equals("-43")) {
+                            operadores.push((String) tblTokens.getValueAt(j, 1));
+                        } else if (tblTokens.getValueAt(j, 1).equals(")")) {
+                            ordenarPilaPorPrioridad(operadores);
+                            while (!operadores.isEmpty()) {
+                                operadoresOrdenCorrecto.push(operadores.pop());
+                            }
+                            System.out.println("Hola");
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static void ordenarPilaPorPrioridad(Stack<String> pila) {
+        Stack<String> pilaAuxiliar = new Stack<>();
+        Queue<String> colaDeMismoPrioridad = new LinkedList<>();
+
+        while (!pila.isEmpty()) {
+            String operador = pila.pop();
+            int prioridadOperador = prioridades.getOrDefault(operador, 0);
+
+            // Mientras haya operadores en la pila auxiliar y tengan mayor o igual prioridad que el operador actual,
+            // los sacamos de la pila auxiliar y los metemos en la cola de igual prioridad
+            while (!pilaAuxiliar.isEmpty() && prioridades.getOrDefault(pilaAuxiliar.peek(), 0) >= prioridadOperador) {
+                colaDeMismoPrioridad.add(pilaAuxiliar.pop());
+            }
+
+            // Insertamos el operador actual en la pila auxiliar
+            pilaAuxiliar.push(operador);
+            
+            // Si hay elementos en la cola con la misma prioridad, los agregamos de nuevo a la pila auxiliar
+            while (!colaDeMismoPrioridad.isEmpty()) {
+                pilaAuxiliar.push(colaDeMismoPrioridad.poll());
+            }
+        }
+        // Al final, movemos todos los operadores de la pila auxiliar a la pila original
+        while (!pilaAuxiliar.isEmpty()) {
+            pila.push(pilaAuxiliar.pop());
+        }
+    }
+
 
     /**
      * @param args the command line arguments
