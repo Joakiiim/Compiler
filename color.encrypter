@@ -1,8 +1,14 @@
-public class Prueba(){
-int x;
-if(x % 2== 2*2)
+public class fact()
 {
-x =  x * 2;
-print("par");
-}
+int i;
+double f;
+int s;
+i = 1;
+f = 1;
+
+do{
+i = i + 1;
+f = f * i;
+}while(i <= 4);
+print(f);
 }

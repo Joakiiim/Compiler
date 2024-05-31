@@ -403,8 +403,8 @@ public class Compilador extends javax.swing.JFrame {
         lexicalAnalysis();
         fillTableTokens();
 
-//        syntacticAnalysis();
-//        semanticAnalysis();
+//        syntacticAnalysis();  
+//  semanticAnalysis();
 //        printConsole();
         codeHasBeenCompiled = true;
         VCI();
@@ -1034,7 +1034,7 @@ public class Compilador extends javax.swing.JFrame {
 
                         }//empieza para hacer el postfijo 
                         else if (tblTokens.getValueAt(j, 0).equals("-21")) {
-                            if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 60) {
+                            if (!operadoresPrio.isEmpty() && operadoresPrio.peek() > 60) {
                                 ordenPostFijo.add(operadores.pop());
                                 operadoresPrio.pop();
                                 operadores.push("*");
@@ -1044,7 +1044,7 @@ public class Compilador extends javax.swing.JFrame {
                                 operadoresPrio.push(60);
                             }
                         } else if (tblTokens.getValueAt(j, 0).equals("-22")) {
-                            if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 60) {
+                            if (!operadoresPrio.isEmpty() && operadoresPrio.peek() > 60) {
                                 ordenPostFijo.add(operadores.pop());
                                 operadoresPrio.pop();
                                 operadores.push("/");
@@ -1054,7 +1054,7 @@ public class Compilador extends javax.swing.JFrame {
                                 operadoresPrio.push(60);
                             }
                         } else if (tblTokens.getValueAt(j, 0).equals("-23")) {
-                            if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 60) {
+                            if (!operadoresPrio.isEmpty() && operadoresPrio.peek() > 60) {
                                 ordenPostFijo.add(operadores.pop());
                                 operadoresPrio.pop();
                                 operadores.push("%");
@@ -1064,7 +1064,7 @@ public class Compilador extends javax.swing.JFrame {
                                 operadoresPrio.push(60);
                             }
                         } else if (tblTokens.getValueAt(j, 0).equals("-24")) {
-                            if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 50) {
+                            if (!operadoresPrio.isEmpty() && operadoresPrio.peek() > 50) {
                                 ordenPostFijo.add(operadores.pop());
                                 operadoresPrio.pop();
                                 operadores.push("+");
@@ -1074,7 +1074,7 @@ public class Compilador extends javax.swing.JFrame {
                                 operadoresPrio.push(50);
                             }
                         } else if (tblTokens.getValueAt(j, 0).equals("-25")) {
-                            if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 50) {
+                            if (!operadoresPrio.isEmpty() && operadoresPrio.peek() > 50) {
                                 ordenPostFijo.add(operadores.pop());
                                 operadoresPrio.pop();
                                 operadores.push("-");
@@ -1953,32 +1953,33 @@ public class Compilador extends javax.swing.JFrame {
         System.out.print("Hola");
     }
 
-    public static void escribirArchivo(LinkedList<String> list, String nombreArchivo) {
-        BufferedWriter writer = null;
+  public static void escribirArchivo(LinkedList<String> list, String nombreArchivo) {
+    BufferedWriter writer = null;
+    try {
+        // Crear FileWriter y BufferedWriter
+        writer = new BufferedWriter(new FileWriter(nombreArchivo));
+
+        // Iterar sobre la LinkedList y escribir cada elemento con su índice en el archivo
+        for (int i = 0; i < list.size(); i++) {
+            String elemento = list.get(i);
+            writer.write(i + ": " + elemento);
+            writer.newLine(); // Escribir una nueva línea después de cada elemento
+        }
+
+        System.out.println("Archivo escrito exitosamente.");
+    } catch (IOException e) {
+        e.printStackTrace();
+    } finally {
+        // Cerrar el archivo
         try {
-            // Crear FileWriter y BufferedWriter
-            writer = new BufferedWriter(new FileWriter(nombreArchivo));
-
-            // Paso 3: Iterar sobre la LinkedList y escribir cada elemento en el archivo
-            for (String elemento : list) {
-                writer.write(elemento);
-                writer.newLine(); // Escribir una nueva línea después de cada elemento
+            if (writer != null) {
+                writer.close();
             }
-
-            System.out.println("Archivo escrito exitosamente.");
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            // Paso 4: Cerrar el archivo
-            try {
-                if (writer != null) {
-                    writer.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
+}
 
     /**
      * @param args the command line arguments
