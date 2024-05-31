@@ -1001,6 +1001,7 @@ public class Compilador extends javax.swing.JFrame {
         int posicionelse = 0;
         int posicionWhile = 0;
         int posicionFinWhile = 0;
+        int posicionComElse = 0;
 //        Stack<String> operadoresOrdenCorrecto = new Stack<>();
         Stack<Integer> direcciones = new Stack<>();
         LinkedList<String> ordenPostFijo = new LinkedList<>();
@@ -1189,8 +1190,8 @@ public class Compilador extends javax.swing.JFrame {
                             }
 
                             ordenPostFijo.add("0"); // el vacion  hay q guardar la direccion
-                            posicionUwu = ordenPostFijo.indexOf("0");
-                            //System.out.println("La posición de 'uwu' en ordenPostFijo es: " + posicionUwu );
+                            posicionUwu = ordenPostFijo.size()-1;
+                            System.out.println("La posición de 'uwu' en ordenPostFijo es: " + posicionUwu );
                             //System.out.println(ordenPostFijo.indexOf(tkn.equals("uwu")));
                             ordenPostFijo.add("if");
                             i = j;
@@ -1205,6 +1206,7 @@ public class Compilador extends javax.swing.JFrame {
                 estatutos.push(lex.toString());
                 ordenPostFijo.add("0"); // el vacion  hay q guardar la direccion
                 posicionelse = ordenPostFijo.indexOf("0");
+                posicionComElse = ordenPostFijo.size();
                 //System.out.println("La posición de 'uwu' en ordenPostFijo es: " + posicionUwu );
                 //System.out.println(ordenPostFijo.indexOf(tkn.equals("uwu")));
                 ordenPostFijo.add("else");
@@ -1216,7 +1218,7 @@ public class Compilador extends javax.swing.JFrame {
 
             }*/ else if (lex.equals("do")) {
                 estatutos.push(lex.toString());
-                int posicionDo = ordenPostFijo.lastIndexOf(ordenPostFijo.getLast().toString()) + 1;
+                int posicionDo = ordenPostFijo.size();
 
                 for (int j = i + 1; j < rowCount; j++) {
                     if (tblTokens.getValueAt(j, 0).equals("-82") || tblTokens.getValueAt(j, 0).equals("-61") || tblTokens.getValueAt(j, 0).equals("-62")) {
@@ -1561,8 +1563,7 @@ public class Compilador extends javax.swing.JFrame {
             } else if (lex.equals("while")) {
                 estatutos.push(lex.toString());
                 if (tblTokens.getValueAt(i + 1, 1).equals("(")) {
-                    posicionWhile = ordenPostFijo.indexOf(ordenPostFijo.getLast())+ 1;
-                    System.out.println("Indice de while: "+posicionWhile);
+                    posicionWhile = ordenPostFijo.size();
                     for (int j = i + 2; j < rowCount; j++) {
                         if (tblTokens.getValueAt(j, 0).equals("-82") || tblTokens.getValueAt(j, 0).equals("-61") || tblTokens.getValueAt(j, 0).equals("-62")) {
                             ordenPostFijo.add(tblTokens.getValueAt(j, 1).toString());
@@ -1724,7 +1725,7 @@ public class Compilador extends javax.swing.JFrame {
                                 operadoresPrio.pop();
                             }
                             ordenPostFijo.add("0");
-                            posicionFinWhile = ordenPostFijo.indexOf("0");
+                            posicionFinWhile = ordenPostFijo.size()-1;
                             ordenPostFijo.add("while");
                             i=j;
                             break;
@@ -1927,6 +1928,9 @@ public class Compilador extends javax.swing.JFrame {
                     //hacer pop sacar el if 
                     estatutos.pop();
                     ordenPostFijo.set(posicionelse, String.valueOf(posLlave));
+                    //Cuando empieza el else
+                    ordenPostFijo.set(posicionUwu, String.valueOf(posicionComElse+1));
+                    
                 } else if (estatutos.peek().equals("while")) {
                     //  INDICE DE LO QUE SIGUE DESPUES DEL WHILE
                     int ultPosWhile = ordenPostFijo.lastIndexOf(ordenPostFijo.getLast().toString()) + 3;       
@@ -1935,6 +1939,8 @@ public class Compilador extends javax.swing.JFrame {
                     //Poner posicion de regreso al while
                     ordenPostFijo.add(String.valueOf(posicionWhile));
                     ordenPostFijo.add("fin while");
+                    ordenPostFijo.set(posicionFinWhile, String.valueOf(ultPosWhile));
+                    
                     
                     
 ////                    ordenPostFijo.set(posicionFinWhile, String.valueOf(posicionWhile));;                   
