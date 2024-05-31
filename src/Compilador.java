@@ -1181,10 +1181,20 @@ public class Compilador extends javax.swing.JFrame {
                                 ordenPostFijo.add(operadores.pop());
                                 operadoresPrio.pop();
                             }
+                            
+                            ordenPostFijo.add("uwu"); // el vacion  hay q guardar la direccion
+                            int posicionUwu = ordenPostFijo.indexOf("uwu");
+                            System.out.println("La posición de 'uwu' en ordenPostFijo es: " + posicionUwu + 1);
+                            //System.out.println(ordenPostFijo.indexOf(tkn.equals("uwu")));
+                            ordenPostFijo.add("if");
                             i = j;
                             break;
+                            
                         }
+                        
+                        
                     }
+                    
                 }
             }else if(lex.equals("while")){
                 estatutos.push(lex.toString());
