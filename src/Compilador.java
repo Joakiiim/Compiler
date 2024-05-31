@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -35,7 +36,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
-
+import java.io.FileWriter;
 public class Compilador extends javax.swing.JFrame {
 
     private String title;
@@ -1361,6 +1362,7 @@ public class Compilador extends javax.swing.JFrame {
                 }
                 }
             }
+            escribirArchivo(ordenPostFijo,"archivo.txt");
             System.out.print("Hola");
         }
         //    public static void ordenarPilaPorPrioridad(Stack<String> pila) {
@@ -1395,9 +1397,43 @@ public class Compilador extends javax.swing.JFrame {
         //            }
         //        }
         //    }
+    
+    
+    public static void escribirArchivo(LinkedList<String> list, String nombreArchivo) {
+        BufferedWriter writer = null;
+        try {
+            // Crear FileWriter y BufferedWriter
+            writer = new BufferedWriter(new FileWriter(nombreArchivo));
+
+            // Paso 3: Iterar sobre la LinkedList y escribir cada elemento en el archivo
+            for (String elemento : list) {
+                writer.write(elemento);
+                writer.newLine(); // Escribir una nueva línea después de cada elemento
+            }
+
+            System.out.println("Archivo escrito exitosamente.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            // Paso 4: Cerrar el archivo
+            try {
+                if (writer != null) {
+                    writer.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    
+ 
         /**
          * @param args the command line arguments
          */
+    
+    
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
