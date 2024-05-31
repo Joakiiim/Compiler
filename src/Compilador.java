@@ -998,6 +998,9 @@ public class Compilador extends javax.swing.JFrame {
         Stack<String> operadores = new Stack<>();
         Stack<Integer> operadoresPrio = new Stack<>();
         int posicionUwu = 0;
+        int posicionelse = 0;
+        int posicionWhile = 0;
+        int posicionFinWhile = 0;
 //        Stack<String> operadoresOrdenCorrecto = new Stack<>();
         Stack<Integer> direcciones = new Stack<>();
         LinkedList<String> ordenPostFijo = new LinkedList<>();
@@ -1198,14 +1201,368 @@ public class Compilador extends javax.swing.JFrame {
                     }
 
                 }
-            } else if (lex.equals("do")) {
+            } else if (lex.equals("else")) {
                 estatutos.push(lex.toString());
-                int indDo = ordenPostFijo.lastIndexOf(ordenPostFijo.getLast().toString())+1;                    
-                System.out.println("Pos del do"+indDo);
-            } 
-            else if (lex.equals("while")) {
+                ordenPostFijo.add("0"); // el vacion  hay q guardar la direccion
+                posicionelse = ordenPostFijo.indexOf("0");
+                //System.out.println("La posición de 'uwu' en ordenPostFijo es: " + posicionUwu );
+                //System.out.println(ordenPostFijo.indexOf(tkn.equals("uwu")));
+                ordenPostFijo.add("else");
+
+            } /*else if (lex.equals("do")) {
+                estatutos.push(lex.toString());
+                int indDo = ordenPostFijo.lastIndexOf(ordenPostFijo.getLast().toString()) + 1;
+                System.out.println("Pos del do" + indDo);
+
+            }*/ else if (lex.equals("do")) {
+                estatutos.push(lex.toString());
+                int posicionDo = ordenPostFijo.lastIndexOf(ordenPostFijo.getLast().toString()) + 1;
+
+                for (int j = i + 1; j < rowCount; j++) {
+                    if (tblTokens.getValueAt(j, 0).equals("-82") || tblTokens.getValueAt(j, 0).equals("-61") || tblTokens.getValueAt(j, 0).equals("-62")) {
+                        ordenPostFijo.add(tblTokens.getValueAt(j, 1).toString());
+                        indiceLista++;
+                    } else if (tblTokens.getValueAt(j, 0).equals("-21")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 60) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push("*");
+                            operadoresPrio.push(60);
+                        } else {
+                            operadores.push("*");
+                            operadoresPrio.push(60);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-22")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 60) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push("/");
+                            operadoresPrio.push(60);
+                        } else {
+                            operadores.push("/");
+                            operadoresPrio.push(60);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-23")) {
+                        String valorRaro = tblTokens.getValueAt(j, 1).toString();
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 60) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push("%");
+                            operadoresPrio.push(60);
+                        } else {
+                            operadores.push("%");
+                            operadoresPrio.push(60);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-24")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 50) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push("+");
+                            operadoresPrio.push(50);
+                        } else {
+                            operadores.push("+");
+                            operadoresPrio.push(50);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-25")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 50) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push("-");
+                            operadoresPrio.push(50);
+                        } else {
+                            operadores.push("-");
+                            operadoresPrio.push(50);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-26")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push("=");
+                            operadoresPrio.push(40);
+                        } else {
+                            operadores.push("=");
+                            operadoresPrio.push(40);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-31")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push("<");
+                            operadoresPrio.push(40);
+                        } else {
+                            operadores.push("<");
+                            operadoresPrio.push(40);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-32")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push("<=");
+                            operadoresPrio.push(40);
+                        } else {
+                            operadores.push("<=");
+                            operadoresPrio.push(40);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-33")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push(">");
+                            operadoresPrio.push(40);
+                        } else {
+                            operadores.push(">");
+                            operadoresPrio.push(40);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-34")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push(">=");
+                            operadoresPrio.push(40);
+                        } else {
+                            operadores.push(">=");
+                            operadoresPrio.push(40);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-35")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push("==");
+                            operadoresPrio.push(40);
+                        } else {
+                            operadores.push("==");
+                            operadoresPrio.push(40);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-36")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push("!=");
+                            operadoresPrio.push(40);
+                        } else {
+                            operadores.push("!=");
+                            operadoresPrio.push(40);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-41")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 20) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push("&&");
+                            operadoresPrio.push(20);
+                        } else {
+                            operadores.push("&&");
+                            operadoresPrio.push(20);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-42")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 10) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push("||");
+                            operadoresPrio.push(10);
+                        } else {
+                            operadores.push("||");
+                            operadoresPrio.push(10);
+                        }
+                    } else if (tblTokens.getValueAt(j, 0).equals("-43")) {
+                        if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 30) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                            operadores.push("!");
+                            operadoresPrio.push(30);
+                        } else {
+                            operadores.push("!");
+                            operadoresPrio.push(30);
+                        }
+                    } else if (tblTokens.getValueAt(j, 1).equals(";")) {
+                        while (!operadores.empty()) {
+                            ordenPostFijo.add(operadores.pop());
+                            operadoresPrio.pop();
+                        }
+
+                    } else if (tblTokens.getValueAt(j, 1).equals("while")) {
+                        if (tblTokens.getValueAt(j + 1, 1).equals("(")) {
+                            for (int d = j + 2; d < rowCount; d++) {
+                                if (tblTokens.getValueAt(d, 0).equals("-82") || tblTokens.getValueAt(d, 0).equals("-61") || tblTokens.getValueAt(d, 0).equals("-62")) {
+                                    ordenPostFijo.add(tblTokens.getValueAt(d, 1).toString());
+                                    indiceLista++;
+
+                                }//empieza para hacer el postfijo 
+                                else if (tblTokens.getValueAt(d, 0).equals("-21")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 60) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push("*");
+                                        operadoresPrio.push(60);
+                                    } else {
+                                        operadores.push("*");
+                                        operadoresPrio.push(60);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-22")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 60) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push("/");
+                                        operadoresPrio.push(60);
+                                    } else {
+                                        operadores.push("/");
+                                        operadoresPrio.push(60);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-23")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 60) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push("%");
+                                        operadoresPrio.push(60);
+                                    } else {
+                                        operadores.push("%");
+                                        operadoresPrio.push(60);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-24")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 50) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push("+");
+                                        operadoresPrio.push(50);
+                                    } else {
+                                        operadores.push("+");
+                                        operadoresPrio.push(50);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-25")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 50) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push("-");
+                                        operadoresPrio.push(50);
+                                    } else {
+                                        operadores.push("-");
+                                        operadoresPrio.push(50);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-26")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push("=");
+                                        operadoresPrio.push(40);
+                                    } else {
+                                        operadores.push("=");
+                                        operadoresPrio.push(40);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-31")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push("<");
+                                        operadoresPrio.push(40);
+                                    } else {
+                                        operadores.push("<");
+                                        operadoresPrio.push(40);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-32")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push("<=");
+                                        operadoresPrio.push(40);
+                                    } else {
+                                        operadores.push("<=");
+                                        operadoresPrio.push(40);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-33")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push(">");
+                                        operadoresPrio.push(40);
+                                    } else {
+                                        operadores.push(">");
+                                        operadoresPrio.push(40);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-34")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push(">=");
+                                        operadoresPrio.push(40);
+                                    } else {
+                                        operadores.push(">=");
+                                        operadoresPrio.push(40);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-35")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push("==");
+                                        operadoresPrio.push(40);
+                                    } else {
+                                        operadores.push("==");
+                                        operadoresPrio.push(40);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-36")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 40) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push("!=");
+                                        operadoresPrio.push(40);
+                                    } else {
+                                        operadores.push("!=");
+                                        operadoresPrio.push(40);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-41")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 20) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push("&&");
+                                        operadoresPrio.push(20);
+                                    } else {
+                                        operadores.push("&&");
+                                        operadoresPrio.push(20);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-42")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 10) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push("||");
+                                        operadoresPrio.push(10);
+                                    } else {
+                                        operadores.push("||");
+                                        operadoresPrio.push(10);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 0).equals("-43")) {
+                                    if (!operadoresPrio.isEmpty() && operadoresPrio.peek() >= 30) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                        operadores.push("!");
+                                        operadoresPrio.push(30);
+                                    } else {
+                                        operadores.push("!");
+                                        operadoresPrio.push(30);
+                                    }
+                                } else if (tblTokens.getValueAt(d, 1).equals(";")) {
+                                    while (!operadores.empty()) {
+                                        ordenPostFijo.add(operadores.pop());
+                                        operadoresPrio.pop();
+                                    }
+
+                                    ordenPostFijo.add(String.valueOf(posicionDo)); // el vacion  hay q guardar la direccion
+                                    //System.out.println("La posición de 'uwu' en ordenPostFijo es: " + posicionUwu );
+                                    //System.out.println(ordenPostFijo.indexOf(tkn.equals("uwu")));
+                                    ordenPostFijo.add("fin do while");
+                                    j = d;
+                                    break;
+
+                                }
+
+                            }
+                        }
+                        i = j;
+                        break;
+                    }
+                }
+            } else if (lex.equals("while")) {
                 estatutos.push(lex.toString());
                 if (tblTokens.getValueAt(i + 1, 1).equals("(")) {
+                    posicionWhile = ordenPostFijo.indexOf(ordenPostFijo.getLast())+ 1;
+                    System.out.println("Indice de while: "+posicionWhile);
                     for (int j = i + 2; j < rowCount; j++) {
                         if (tblTokens.getValueAt(j, 0).equals("-82") || tblTokens.getValueAt(j, 0).equals("-61") || tblTokens.getValueAt(j, 0).equals("-62")) {
                             ordenPostFijo.add(tblTokens.getValueAt(j, 1).toString());
@@ -1361,11 +1718,15 @@ public class Compilador extends javax.swing.JFrame {
                                 operadores.push("!");
                                 operadoresPrio.push(30);
                             }
-                        } else if (tblTokens.getValueAt(j, 1).equals(";")) {
+                        } else if (tblTokens.getValueAt(j, 1).equals(")")) {
                             while (!operadores.empty()) {
                                 ordenPostFijo.add(operadores.pop());
                                 operadoresPrio.pop();
                             }
+                            ordenPostFijo.add("0");
+                            posicionFinWhile = ordenPostFijo.indexOf("0");
+                            ordenPostFijo.add("while");
+                            i=j;
                             break;
                         }
                     }
@@ -1560,6 +1921,24 @@ public class Compilador extends javax.swing.JFrame {
                     //hacer pop sacar el if 
                     estatutos.pop();
                     ordenPostFijo.set(posicionUwu, String.valueOf(posLlave));
+                } else if (estatutos.peek().equals("else")) {
+                    int posLlave = ordenPostFijo.lastIndexOf(ordenPostFijo.getLast().toString()) + 1;
+                    System.out.println(posLlave);
+                    //hacer pop sacar el if 
+                    estatutos.pop();
+                    ordenPostFijo.set(posicionelse, String.valueOf(posLlave));
+                } else if (estatutos.peek().equals("while")) {
+                    //  INDICE DE LO QUE SIGUE DESPUES DEL WHILE
+                    int ultPosWhile = ordenPostFijo.lastIndexOf(ordenPostFijo.getLast().toString()) + 3;       
+                    //hacer pop sacar el while 
+                    estatutos.pop();
+                    //Poner posicion de regreso al while
+                    ordenPostFijo.add(String.valueOf(posicionWhile));
+                    ordenPostFijo.add("fin while");
+                    
+                    
+////                    ordenPostFijo.set(posicionFinWhile, String.valueOf(posicionWhile));;                   
+                    
                 }
 
             }
