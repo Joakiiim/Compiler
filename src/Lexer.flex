@@ -48,6 +48,8 @@ Cadena = \"[^\"]*\"
 if {return token(yytext(), "-1", yyline, yycolumn);}
 else {return token(yytext(), "-2", yyline, yycolumn);}
 for {return token(yytext(), "-3", yyline, yycolumn);}
+do {return token(yytext(), "-90", yyline, yycolumn);}
+while {return token(yytext(), "-91", yyline, yycolumn);}
 print {return token(yytext(), "-4", yyline, yycolumn);}
 println {return token(yytext(), "-5", yyline, yycolumn);}
 int {return token(yytext(),"-64",yyline,yycolumn);}
