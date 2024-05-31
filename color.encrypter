@@ -1,4 +1,4 @@
-public double fact()
+public class  fact()
 {
 int i;
 double f;
