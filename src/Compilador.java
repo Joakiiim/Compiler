@@ -1198,7 +1198,14 @@ public class Compilador extends javax.swing.JFrame {
                     }
 
                 }
-            } else if (lex.equals("while")) {
+            } else if (lex.equals("do")) {
+                estatutos.push(lex.toString());
+                ordenPostFijo.add("0"); // el vacion  hay q guardar la direccion
+                posicionUwu = ordenPostFijo.indexOf("0");
+                //System.out.println("La posición de 'uwu' en ordenPostFijo es: " + posicionUwu );
+                //System.out.println(ordenPostFijo.indexOf(tkn.equals("uwu")));
+            } 
+            /*else if (lex.equals("while")) {
                 estatutos.push(lex.toString());
                 if (tblTokens.getValueAt(i + 1, 1).equals("(")) {
                     for (int j = i + 2; j < rowCount; j++) {
@@ -1365,7 +1372,7 @@ public class Compilador extends javax.swing.JFrame {
                         }
                     }
                 }
-            } //Aqui se realiza el postfijo 
+            }*/ //Aqui se realiza el postfijo 
             else if (tkn.equals("-82")) {
 
                 ordenPostFijo.add(lex.toString());
