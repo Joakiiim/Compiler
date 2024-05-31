@@ -1182,9 +1182,9 @@ public class Compilador extends javax.swing.JFrame {
                                 operadoresPrio.pop();
                             }
                             
-                            ordenPostFijo.add("uwu"); // el vacion  hay q guardar la direccion
-                            int posicionUwu = ordenPostFijo.indexOf("uwu");
-                            System.out.println("La posición de 'uwu' en ordenPostFijo es: " + posicionUwu + 1);
+                            ordenPostFijo.add("0"); // el vacion  hay q guardar la direccion
+                            int posicionUwu = ordenPostFijo.indexOf("0");
+                            //System.out.println("La posición de 'uwu' en ordenPostFijo es: " + posicionUwu );
                             //System.out.println(ordenPostFijo.indexOf(tkn.equals("uwu")));
                             ordenPostFijo.add("if");
                             i = j;
@@ -1544,6 +1544,15 @@ public class Compilador extends javax.swing.JFrame {
                     }
                 }
                 }
+            else if(tkn.equals("-78")){
+                //logica de uwu para meter un uwu direccion 
+                //obtener la direccion de la llave de cierre para meterlo en la lista 
+                //
+                int posLlave = ordenPostFijo.lastIndexOf(ordenPostFijo.getLast().toString())+1;
+                System.out.println(posLlave);
+                       //hacer pop sacar el if 
+                estatutos.pop();
+            }
             }
            escribirArchivo(ordenPostFijo,"archivo.txt");
             System.out.print("Hola");
